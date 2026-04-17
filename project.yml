@@ -1,0 +1,88 @@
+name: RackTimer
+options:
+  bundleIdPrefix: com.racktimer
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: "NH2XFPC9KN"
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  RackTimer:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: RackTimer
+        excludes:
+          - "**/.DS_Store"
+    resources:
+      - RackTimer/Resources/Assets.xcassets
+      - RackTimer/Resources/PrivacyInfo.xcprivacy
+      - RackTimer/Resources/Configuration.storekit
+    info:
+      path: RackTimer/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: RackTimer
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.racktimer.app
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
+        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "1.0.0"
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ENABLE_PREVIEWS: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+
+  RackTimerTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: RackTimerTests
+    dependencies:
+      - target: RackTimer
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.racktimer.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  RackTimer:
+    build:
+      targets:
+        RackTimer: all
+        RackTimerTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - RackTimerTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
