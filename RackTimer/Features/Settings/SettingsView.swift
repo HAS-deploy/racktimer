@@ -30,12 +30,15 @@ struct SettingsView: View {
                                 Image(systemName: "chevron.right").foregroundStyle(.secondary)
                             }
                         }
-                        Button("Restore purchases") {
-                            analytics.track(.restorePurchasesTapped)
-                            Task {
-                                await purchases.restore()
-                                status = purchases.isPremium ? "Restored." : "No purchases found."
-                            }
+                    }
+                    // Restore is always visible — Apple's "reinstall then
+                    // restore" review flow requires the button be reachable
+                    // even after premium is active on the current device.
+                    Button("Restore purchases") {
+                        analytics.track(.restorePurchasesTapped)
+                        Task {
+                            await purchases.restore()
+                            status = purchases.isPremium ? "Purchase restored." : "No previous purchases found."
                         }
                     }
                 } header: { Text("RackTimer Premium") }
@@ -58,7 +61,6 @@ struct SettingsView: View {
                     }
                     Toggle("Auto-restart", isOn: $settings.autoRestart)
                     Toggle("Haptics", isOn: $settings.hapticsEnabled)
-                    Toggle("Sound", isOn: $settings.soundEnabled)
                 }
 
                 Section("About") {
