@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0359388973904AE61AB46BEE /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7EB0E097A1F3894CF4D3EEC /* AnalyticsService.swift */; };
 		0A240E00A1C5DCA957C3A98D /* RestTimerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05E0037D0CA84B5E4BC4B2B /* RestTimerEngine.swift */; };
+		179A9872977936724CD336C8 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = 44334EB47194A8D20588F6A3 /* PostHog */; };
 		1DD51CF0C7A9D43EDADDB938 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669532C5A62E5D256B31EB50 /* HistoryView.swift */; };
 		2B42866FC35B3800EBA31B62 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C99E2820C4026B6B07A182 /* PaywallView.swift */; };
 		3451172D6CCABEEF76E6DD39 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C31F1D4C606B57984A2D77 /* RootTabView.swift */; };
@@ -26,6 +27,7 @@
 		C8DAD133F44848888661D919 /* PlateCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B9AD0E15B95606389F1AB3 /* PlateCalculatorView.swift */; };
 		D516BF53F7119C9703B744FC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FAE32C213C643C42827BDE /* SettingsView.swift */; };
 		DD5F0EBD7523A7A01EBC0676 /* LiftTimerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F8EAE85D99B02010A87CE3A /* LiftTimerApp.swift */; };
+		E0F1AD87C823EFEFBECBCC36 /* PortfolioAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBD983C5105C11D95480731 /* PortfolioAnalytics.swift */; };
 		EF1F3A30BCB6218CE62D53ED /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE52A31BA7CC89B3FB9D12DD /* TemplateStore.swift */; };
 		F7494095A04716FCBA6CE31B /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2C4A3E35ACE87767333099 /* TemplatesView.swift */; };
 		F9B323AD98FD5B86C9D547F2 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D0352F97E2C3A6076BD8AC /* TimerView.swift */; };
@@ -44,6 +46,7 @@
 /* Begin PBXFileReference section */
 		0BA5E24DD2F003BF593AFF58 /* RackTimerTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RackTimerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		377B0453C03A9D697FD73BA7 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
+		3DBD983C5105C11D95480731 /* PortfolioAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioAnalytics.swift; sourceTree = "<group>"; };
 		41C31F1D4C606B57984A2D77 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		63DBBEDE6414077741388A3D /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		669532C5A62E5D256B31EB50 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
@@ -68,6 +71,17 @@
 		DF243AD7FB51F5E552CA1673 /* PlateCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlateCalculator.swift; sourceTree = "<group>"; };
 		FB2C4A3E35ACE87767333099 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C8579149D7E5C75A18DBCE70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				179A9872977936724CD336C8 /* PostHog in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		28369B5F838F3151C987CB20 /* RackTimerTests */ = {
@@ -213,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				D7EB0E097A1F3894CF4D3EEC /* AnalyticsService.swift */,
+				3DBD983C5105C11D95480731 /* PortfolioAnalytics.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -288,6 +303,7 @@
 			buildPhases = (
 				0A734720212061F7B881BEBA /* Sources */,
 				3021E55A11DB8AED7663433F /* Resources */,
+				C8579149D7E5C75A18DBCE70 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -295,6 +311,7 @@
 			);
 			name = RackTimer;
 			packageProductDependencies = (
+				44334EB47194A8D20588F6A3 /* PostHog */,
 			);
 			productName = RackTimer;
 			productReference = DDF1BC89978375122B8FD3BC /* RackTimer.app */;
@@ -328,6 +345,9 @@
 			);
 			mainGroup = F95EBE93E8348D5D4F57BBB0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E70D6DCA64C1705B674B3ED4 /* XCRemoteSwiftPackageReference "posthog-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 61D9D942B251CD3C8CE7369A /* Products */;
 			projectDirPath = "";
@@ -365,6 +385,7 @@
 				2B42866FC35B3800EBA31B62 /* PaywallView.swift in Sources */,
 				C55C4FE1254B75A0DEB3D199 /* PlateCalculator.swift in Sources */,
 				C8DAD133F44848888661D919 /* PlateCalculatorView.swift in Sources */,
+				E0F1AD87C823EFEFBECBCC36 /* PortfolioAnalytics.swift in Sources */,
 				B7C41A2449A68C5906AE55A2 /* PricingConfig.swift in Sources */,
 				669FF5A398CE724BDD34CAE4 /* PurchaseManager.swift in Sources */,
 				0A240E00A1C5DCA957C3A98D /* RestTimerEngine.swift in Sources */,
@@ -486,7 +507,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = RackTimer/Resources/Info.plist;
@@ -587,7 +608,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = RackTimer/Resources/Info.plist;
@@ -637,6 +658,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E70D6DCA64C1705B674B3ED4 /* XCRemoteSwiftPackageReference "posthog-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/PostHog/posthog-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.15.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		44334EB47194A8D20588F6A3 /* PostHog */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E70D6DCA64C1705B674B3ED4 /* XCRemoteSwiftPackageReference "posthog-ios" */;
+			productName = PostHog;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B8B1A4C49A56A4198C0753D7 /* Project object */;
 }

@@ -19,11 +19,15 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>PostHogHost</key>
+	<string>https://us.i.posthog.com</string>
+	<key>PostHogKey</key>
+	<string>phc_zsZ6KoWfgoUyVnJEjKi5KC6CuS66xnyQgradTRmqc52s</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

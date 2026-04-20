@@ -55,11 +55,20 @@ final class PurchaseManager: ObservableObject {
             let result = try await product.purchase()
             switch result {
             case .success(let verification):
-                if case .verified(let tx) = verification {
+                switch verification {
+                case .verified(let tx):
                     await tx.finish()
                     isPremium = true
+                    purchaseState = .idle
+                case .unverified(let tx, let err):
+                    // Apple flagged the transaction as not cryptographically
+                    // verified. Finish it so the queue stops redelivering,
+                    // surface the reason, and re-sync from the authoritative
+                    // `currentEntitlements` in case it's a known-good.
+                    await tx.finish()
+                    await refreshEntitlements()
+                    purchaseState = .failed("Apple couldn't verify the purchase: \(err.localizedDescription)")
                 }
-                purchaseState = .idle
             case .userCancelled:
                 purchaseState = .idle
             case .pending:
@@ -100,7 +109,14 @@ final class PurchaseManager: ObservableObject {
 
     private func listenForTransactions() async {
         for await update in Transaction.updates {
-            if case .verified(let tx) = update {
+            switch update {
+            case .verified(let tx):
+                await tx.finish()
+                await refreshEntitlements()
+            case .unverified(let tx, _):
+                // Finish so the queue doesn't keep redelivering, but don't
+                // grant entitlement on an unverified update. The refresh call
+                // re-checks `currentEntitlements` which is authoritative.
                 await tx.finish()
                 await refreshEntitlements()
             }

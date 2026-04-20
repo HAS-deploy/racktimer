@@ -11,6 +11,10 @@ struct RackTimerApp: App {
 
     let analytics = AnalyticsService.local
 
+    init() {
+        PortfolioAnalytics.shared.start(appName: "racktimer")
+    }
+
     var body: some Scene {
         WindowGroup {
             RootTabView()
