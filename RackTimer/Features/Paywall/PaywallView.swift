@@ -36,11 +36,18 @@ struct PaywallView: View {
             VStack(spacing: 10) {
                 Button {
                     analytics.track(.purchaseStarted, properties: ["source": source])
+                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseClick, [
+                        "source": source,
+                    ])
                     Task {
                         let before = purchases.isPremium
                         await purchases.purchase()
                         if purchases.isPremium && !before {
                             analytics.track(.purchaseCompleted, properties: ["source": source])
+                            PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseSuccess, [
+                                "is_sub": false,
+                                "source": source,
+                            ])
                             dismiss()
                         }
                     }
@@ -74,6 +81,9 @@ struct PaywallView: View {
         .padding(.vertical)
         .onAppear {
             analytics.track(.paywallViewed, properties: ["source": source])
+            PortfolioAnalytics.shared.track(PortfolioEvent.paywallViewed, [
+                "source": source,
+            ])
         }
     }
 }
