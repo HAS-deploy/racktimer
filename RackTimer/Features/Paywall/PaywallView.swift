@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct PaywallView: View {
     @EnvironmentObject private var purchases: PurchaseManager
@@ -8,11 +9,13 @@ struct PaywallView: View {
     /// Which feature surface triggered this paywall — goes into analytics.
     let source: String
 
+    @State private var purchaseAttempted = false
+
     var body: some View {
         VStack(spacing: 18) {
             Spacer(minLength: 8)
             Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 64))
+                .font(.system(size: 56))
                 .foregroundStyle(Color.accentColor)
             Text(PricingConfig.paywallTitle)
                 .font(.largeTitle.bold())
@@ -33,33 +36,9 @@ struct PaywallView: View {
 
             Spacer()
 
-            VStack(spacing: 10) {
-                Button {
-                    analytics.track(.purchaseStarted, properties: ["source": source])
-                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseClick, [
-                        "source": source,
-                    ])
-                    Task {
-                        let before = purchases.isPremium
-                        await purchases.purchase()
-                        if purchases.isPremium && !before {
-                            analytics.track(.purchaseCompleted, properties: ["source": source])
-                            PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseSuccess, [
-                                "is_sub": false,
-                                "source": source,
-                            ])
-                            dismiss()
-                        }
-                    }
-                } label: {
-                    Text("Unlock for \(purchases.lifetimeDisplayPrice)")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-
+            VStack(spacing: 12) {
+                monthlyButton
+                lifetimeButton
                 Button("Restore purchases") {
                     analytics.track(.restorePurchasesTapped)
                     Task {
@@ -71,12 +50,20 @@ struct PaywallView: View {
             }
             .padding(.horizontal)
 
-            Text("One-time purchase. No subscriptions or recurring charges.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-                .padding(.bottom)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("RackTimer Premium (Monthly) — \(purchases.monthlyDisplayPrice) per month, auto-renewing subscription. Payment is charged to your Apple ID at confirmation of purchase and renews each month unless canceled at least 24 hours before the end of the current period. Manage or cancel in your Apple ID Account Settings.")
+                Text("RackTimer Lifetime — \(purchases.lifetimeDisplayPrice) one-time non-consumable purchase. No recurring charges.")
+                Text("Restore purchases at any time from this screen.")
+                HStack(spacing: 12) {
+                    Link("Terms of Use (EULA)", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                    Text("·")
+                    Link("Privacy Policy", destination: URL(string: "https://has-deploy.github.io/racktimer/privacy-policy.html")!)
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal)
+            .padding(.bottom)
         }
         .padding(.vertical)
         .onAppear {
@@ -85,5 +72,112 @@ struct PaywallView: View {
                 "source": source,
             ])
         }
+        .onDisappear {
+            if !purchaseAttempted {
+                PortfolioAnalytics.shared.track(PortfolioEvent.paywallDismissed, [
+                    "source": source,
+                ])
+            }
+        }
+        .trackScreen("paywall")
+    }
+
+    private var monthlyButton: some View {
+        Button {
+            purchaseAttempted = true
+            analytics.track(.purchaseStarted, properties: ["source": source, "product": "monthly"])
+            PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseClick, [
+                "source": source,
+                "product_id": PricingConfig.monthlyProductID,
+            ])
+            Task {
+                let before = purchases.isPremium
+                await purchases.purchaseMonthly()
+                if purchases.isPremium && !before {
+                    analytics.track(.purchaseCompleted, properties: ["source": source, "product": "monthly"])
+                    let product = purchases.monthlyProduct
+                    let price = NSDecimalNumber(decimal: product?.price ?? 0).doubleValue
+                    let productId = product?.id ?? PricingConfig.monthlyProductID
+                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseSuccess, [
+                        "is_sub": true,
+                        "source": source,
+                        "product_id": productId,
+                        "revenue_usd": price,
+                        "currency": product?.priceFormatStyle.currencyCode ?? "USD",
+                    ])
+                    if !UserDefaults.standard.bool(forKey: "posthog.identified") {
+                        PortfolioAnalytics.shared.identifyAfterPurchase(productId: productId, revenueUsd: price)
+                        UserDefaults.standard.set(true, forKey: "posthog.identified")
+                    }
+                    dismiss()
+                }
+            }
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Monthly").font(.headline)
+                    Text("Cancel anytime").font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Text("\(purchases.monthlyDisplayPrice)/mo").font(.headline.monospacedDigit())
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12).padding(.horizontal, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color.accentColor.opacity(0.6), lineWidth: 1.5)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(.secondarySystemBackground)))
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(purchases.purchaseState == .purchasing)
+    }
+
+    private var lifetimeButton: some View {
+        Button {
+            purchaseAttempted = true
+            analytics.track(.purchaseStarted, properties: ["source": source, "product": "lifetime"])
+            PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseClick, [
+                "source": source,
+                "product_id": PricingConfig.lifetimeProductID,
+            ])
+            Task {
+                let before = purchases.isPremium
+                await purchases.purchaseLifetime()
+                if purchases.isPremium && !before {
+                    analytics.track(.purchaseCompleted, properties: ["source": source, "product": "lifetime"])
+                    let product = purchases.lifetimeProduct
+                    let price = NSDecimalNumber(decimal: product?.price ?? 0).doubleValue
+                    let productId = product?.id ?? PricingConfig.lifetimeProductID
+                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseSuccess, [
+                        "is_sub": false,
+                        "source": source,
+                        "product_id": productId,
+                        "revenue_usd": price,
+                        "currency": product?.priceFormatStyle.currencyCode ?? "USD",
+                    ])
+                    if !UserDefaults.standard.bool(forKey: "posthog.identified") {
+                        PortfolioAnalytics.shared.identifyAfterPurchase(productId: productId, revenueUsd: price)
+                        UserDefaults.standard.set(true, forKey: "posthog.identified")
+                    }
+                    dismiss()
+                }
+            }
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Lifetime").font(.headline).foregroundStyle(.white)
+                    Text("Best value · pay once").font(.caption).foregroundStyle(.white.opacity(0.85))
+                }
+                Spacer()
+                Text(purchases.lifetimeDisplayPrice).font(.headline.monospacedDigit()).foregroundStyle(.white)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14).padding(.horizontal, 14)
+            .background(Color.accentColor)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(purchases.purchaseState == .purchasing)
     }
 }

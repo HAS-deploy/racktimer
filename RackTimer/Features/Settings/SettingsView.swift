@@ -69,6 +69,29 @@ struct SettingsView: View {
                     Link("Support", destination: URL(string: "https://has-deploy.github.io/racktimer/support.html")!)
                 }
 
+                Section {
+                    Link(destination: URL(string: "https://apps.apple.com/app/id6762468976")!) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("WalkCue").font(.body).foregroundStyle(.primary)
+                            Text("Step-by-step audio cues for your walks.").font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                    Link(destination: URL(string: "https://apps.apple.com/app/id6762470335")!) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("HydroLite").font(.body).foregroundStyle(.primary)
+                            Text("Simple, friendly hydration tracking.").font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                    Link(destination: URL(string: "https://apps.apple.com/app/id6762465676")!) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("SleepWindow").font(.body).foregroundStyle(.primary)
+                            Text("Personalized bed/wake windows.").font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                } header: { Text("More from us") } footer: {
+                    Text("Other useful apps from the same team. Tap to open in the App Store.")
+                }
+
                 if let s = status {
                     Section { Text(s).foregroundStyle(.secondary) }
                 }

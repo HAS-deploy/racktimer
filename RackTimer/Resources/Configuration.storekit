@@ -3,12 +3,12 @@
   "nonRenewingSubscriptions" : [],
   "products" : [
     {
-      "displayPrice" : "9.99",
+      "displayPrice" : "14.99",
       "familyShareable" : false,
       "internalID" : "com.racktimer.app.lifetime",
       "localizations" : [
         {
-          "description" : "One-time purchase. Unlocks unlimited templates, unlimited history, previous-set recall, custom plate inventory, and advanced timer presets.",
+          "description" : "One-time purchase. Unlimited templates, unlimited history, previous-set recall, custom plate inventory, and advanced timer presets.",
           "displayName" : "RackTimer Lifetime Unlock",
           "locale" : "en_US"
         }
@@ -19,6 +19,35 @@
     }
   ],
   "settings" : {},
-  "subscriptionGroups" : [],
+  "subscriptionGroups" : [
+    {
+      "id" : "racktimer_premium",
+      "localizations" : [],
+      "name" : "RackTimer Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "com.racktimer.app.monthly",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Auto-renewing monthly subscription. Unlimited templates, unlimited history, previous-set recall, custom plate inventory, and advanced timer presets.",
+              "displayName" : "RackTimer Premium (Monthly)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.racktimer.app.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "RackTimer Premium Monthly",
+          "subscriptionGroupID" : "racktimer_premium",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
   "version" : { "major" : 3, "minor" : 0 }
 }

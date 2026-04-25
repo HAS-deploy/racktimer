@@ -1,14 +1,19 @@
 import Foundation
 
-/// Single source of truth for pricing. Change the price in App Store Connect
-/// and update `fallbackLifetimeDisplayPrice` here to keep the cached label
-/// consistent before StoreKit hydrates.
+/// Single source of truth for pricing. Update values here, not scattered.
+/// Product IDs must match App Store Connect and Configuration.storekit.
 enum PricingConfig {
-    static let lifetimeProductID = "com.racktimer.app.lifetime"
-    static let fallbackLifetimeDisplayPrice = "$9.99"
+    static let lifetimeProductID  = "com.racktimer.app.lifetime"
+    static let monthlyProductID   = "com.racktimer.app.monthly"
+    static let subscriptionGroupID = "racktimer_premium"
+
+    static let fallbackLifetimeDisplayPrice = "$14.99"
+    static let fallbackMonthlyDisplayPrice  = "$2.99"
+
+    static let allProductIDs: [String] = [monthlyProductID, lifetimeProductID]
 
     static let paywallTitle = "Unlock RackTimer"
-    static let paywallSubtitle = "One-time purchase. No subscriptions."
+    static let paywallSubtitle = "Choose monthly or one-time lifetime unlock."
 
     static let paywallBenefits: [String] = [
         "Unlimited workout templates",

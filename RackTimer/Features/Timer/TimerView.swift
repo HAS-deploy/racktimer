@@ -69,6 +69,10 @@ struct TimerView: View {
             ForEach(settings.timerPresets, id: \.self) { secs in
                 Button {
                     analytics.track(.timerStarted, properties: ["duration": "\(secs)"])
+                    PortfolioAnalytics.shared.track("timer.started", [
+                        "duration_sec": secs,
+                        "preset": "\(secs)s",
+                    ])
                     timer.start(seconds: Double(secs))
                 } label: {
                     VStack {
@@ -109,6 +113,10 @@ struct TimerView: View {
             } else {
                 Button("Restart") {
                     analytics.track(.timerStarted, properties: ["duration": "\(Int(timer.lastDuration))"])
+                    PortfolioAnalytics.shared.track("timer.started", [
+                        "duration_sec": Int(timer.lastDuration),
+                        "preset": "restart",
+                    ])
                     timer.restart()
                 }
                 .buttonStyle(.borderedProminent).controlSize(.large).frame(maxWidth: .infinity)
@@ -122,6 +130,9 @@ struct TimerView: View {
 
     private func finished() {
         analytics.track(.timerCompleted, properties: ["duration": "\(Int(timer.lastDuration))"])
+        PortfolioAnalytics.shared.track("timer.completed", [
+            "duration_sec": Int(timer.lastDuration),
+        ])
         if settings.hapticsEnabled {
             let g = UINotificationFeedbackGenerator()
             g.notificationOccurred(.success)

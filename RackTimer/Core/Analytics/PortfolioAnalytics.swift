@@ -27,6 +27,9 @@
 //    - user_id set only after authenticate() (keeps anonymous sessions clean).
 
 import Foundation
+import SwiftUI
+import UIKit
+import CryptoKit
 
 #if canImport(PostHog)
 import PostHog
@@ -114,4 +117,36 @@ enum PortfolioEvent {
 
     static let accountDeleted        = "account.deleted"
     static let limitHit              = "limit.hit"
+}
+
+// MARK: - Anonymous identity after first purchase
+extension PortfolioAnalytics {
+    /// Promote the current anonymous session to an identified user using a
+    /// stable non-PII device-scoped id (IDFV hash). Sets cohort traits so
+    /// PostHog's funnels + retention can segment by first-purchase tier.
+    /// Call once on the first successful purchase of the install.
+    func identifyAfterPurchase(productId: String, revenueUsd: Double) {
+        let idfv = UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
+        let hash = Insecure.MD5.hash(data: Data(idfv.utf8)).map { String(format: "%02x", $0) }.joined()
+        let userId = "anon_\(hash.prefix(12))"
+        let traits: [String: Any] = [
+            "first_app": appName,
+            "first_purchase_sku": productId,
+            "first_purchase_revenue_usd": revenueUsd,
+            "first_purchase_at": ISO8601DateFormatter().string(from: Date()),
+        ]
+        identify(userId: userId, traits: traits)
+    }
+}
+
+// MARK: - Screen tracking modifier
+
+extension View {
+    /// Fires a `screen.view` event on appear. Keep names snake_case and
+    /// stable — the PostHog cohort tooling matches on the `screen` property.
+    func trackScreen(_ name: String) -> some View {
+        self.onAppear {
+            PortfolioAnalytics.shared.track(PortfolioEvent.screenView, ["screen": name])
+        }
+    }
 }

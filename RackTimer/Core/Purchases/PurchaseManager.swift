@@ -1,11 +1,13 @@
 import Foundation
 import StoreKit
 
-/// StoreKit 2 wrapper. Single non-consumable product — `com.racktimer.app.lifetime`.
+/// StoreKit 2 wrapper. Multi-product: monthly auto-renewable subscription +
+/// lifetime non-consumable. Either one grants `isPremium = true`.
 @MainActor
 final class PurchaseManager: ObservableObject {
 
-    @Published private(set) var product: Product?
+    @Published private(set) var lifetimeProduct: Product?
+    @Published private(set) var monthlyProduct: Product?
     @Published private(set) var isPremium: Bool = false
     @Published private(set) var purchaseState: PurchaseState = .idle
 
@@ -28,28 +30,45 @@ final class PurchaseManager: ObservableObject {
         updatesTask?.cancel()
     }
 
-    /// Live price from the App Store, falling back to the local constant while loading.
+    /// Live prices from the App Store, falling back to local constants while loading.
     var lifetimeDisplayPrice: String {
-        product?.displayPrice ?? PricingConfig.fallbackLifetimeDisplayPrice
+        lifetimeProduct?.displayPrice ?? PricingConfig.fallbackLifetimeDisplayPrice
+    }
+
+    var monthlyDisplayPrice: String {
+        monthlyProduct?.displayPrice ?? PricingConfig.fallbackMonthlyDisplayPrice
     }
 
     // MARK: Public API
 
     func load() async {
         do {
-            let products = try await Product.products(for: [PricingConfig.lifetimeProductID])
-            self.product = products.first
+            let products = try await Product.products(for: PricingConfig.allProductIDs)
+            self.lifetimeProduct = products.first { $0.id == PricingConfig.lifetimeProductID }
+            self.monthlyProduct  = products.first { $0.id == PricingConfig.monthlyProductID }
             await refreshEntitlements()
         } catch {
             // Offline / sandbox hiccups — keep previous state.
         }
     }
 
-    func purchase() async {
-        guard let product else {
+    func purchaseLifetime() async {
+        guard let product = lifetimeProduct else {
             purchaseState = .failed("Product not available")
             return
         }
+        await purchase(product)
+    }
+
+    func purchaseMonthly() async {
+        guard let product = monthlyProduct else {
+            purchaseState = .failed("Product not available")
+            return
+        }
+        await purchase(product)
+    }
+
+    private func purchase(_ product: Product) async {
         purchaseState = .purchasing
         do {
             let result = try await product.purchase()
@@ -61,10 +80,6 @@ final class PurchaseManager: ObservableObject {
                     isPremium = true
                     purchaseState = .idle
                 case .unverified(let tx, let err):
-                    // Apple flagged the transaction as not cryptographically
-                    // verified. Finish it so the queue stops redelivering,
-                    // surface the reason, and re-sync from the authoritative
-                    // `currentEntitlements` in case it's a known-good.
                     await tx.finish()
                     await refreshEntitlements()
                     purchaseState = .failed("Apple couldn't verify the purchase: \(err.localizedDescription)")
@@ -98,7 +113,7 @@ final class PurchaseManager: ObservableObject {
     func refreshEntitlements() async {
         for await entitlement in Transaction.currentEntitlements {
             if case .verified(let tx) = entitlement,
-               tx.productID == PricingConfig.lifetimeProductID,
+               PricingConfig.allProductIDs.contains(tx.productID),
                tx.revocationDate == nil {
                 isPremium = true
                 return
@@ -114,9 +129,6 @@ final class PurchaseManager: ObservableObject {
                 await tx.finish()
                 await refreshEntitlements()
             case .unverified(let tx, _):
-                // Finish so the queue doesn't keep redelivering, but don't
-                // grant entitlement on an unverified update. The refresh call
-                // re-checks `currentEntitlements` which is authoritative.
                 await tx.finish()
                 await refreshEntitlements()
             }
