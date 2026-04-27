@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://has-deploy.github.io/racktimer/sitemap.xml
