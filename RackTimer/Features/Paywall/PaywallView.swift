@@ -41,6 +41,7 @@ struct PaywallView: View {
                 lifetimeButton
                 Button("Restore purchases") {
                     analytics.track(.restorePurchasesTapped)
+            PortfolioAnalytics.shared.track(PortfolioEvent.paywallRestoreClick)
                     Task {
                         await purchases.restore()
                         if purchases.isPremium { dismiss() }
@@ -110,6 +111,23 @@ struct PaywallView: View {
                         UserDefaults.standard.set(true, forKey: "posthog.identified")
                     }
                     dismiss()
+                } else {
+                    // Emit failure so we can see when purchases don't complete.
+                    // Reason is best-effort from PurchaseManager.purchaseState.
+                    let reason: String
+                    switch purchases.purchaseState {
+                    case .cancelled:    reason = "user_cancelled"
+                    case .pending:      reason = "pending_approval"
+                    case .unknownState: reason = "storekit_unknown_case"
+                    case .failed(let m):reason = m
+                    default:            reason = "unknown"
+                    }
+                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
+                        "is_sub": true,
+                        "source": source,
+                        "product_id": PricingConfig.monthlyProductID,
+                        "reason": reason,
+                    ])
                 }
             }
         } label: {
@@ -161,6 +179,21 @@ struct PaywallView: View {
                         UserDefaults.standard.set(true, forKey: "posthog.identified")
                     }
                     dismiss()
+                } else {
+                    let reason: String
+                    switch purchases.purchaseState {
+                    case .cancelled:    reason = "user_cancelled"
+                    case .pending:      reason = "pending_approval"
+                    case .unknownState: reason = "storekit_unknown_case"
+                    case .failed(let m):reason = m
+                    default:            reason = "unknown"
+                    }
+                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
+                        "is_sub": false,
+                        "source": source,
+                        "product_id": PricingConfig.lifetimeProductID,
+                        "reason": reason,
+                    ])
                 }
             }
         } label: {

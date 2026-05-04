@@ -61,6 +61,7 @@ struct SettingsView: View {
                     }
                     Toggle("Auto-restart", isOn: $settings.autoRestart)
                     Toggle("Haptics", isOn: $settings.hapticsEnabled)
+                    Toggle("Background timer alerts", isOn: $settings.backgroundAlertsEnabled)
                 }
 
                 Section("About") {

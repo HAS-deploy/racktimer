@@ -14,7 +14,10 @@ final class PurchaseManager: ObservableObject {
     enum PurchaseState: Equatable {
         case idle
         case purchasing
-        case failed(String)
+        case cancelled            // user dismissed the StoreKit sheet
+        case pending              // Ask-to-Buy / parental approval / SCA pending
+        case unknownState         // StoreKit returned an @unknown default case
+        case failed(String)       // real StoreKit error (network, verification, etc.)
         case restoring
     }
 
@@ -85,11 +88,11 @@ final class PurchaseManager: ObservableObject {
                     purchaseState = .failed("Apple couldn't verify the purchase: \(err.localizedDescription)")
                 }
             case .userCancelled:
-                purchaseState = .idle
+                purchaseState = .cancelled
             case .pending:
-                purchaseState = .idle
+                purchaseState = .pending
             @unknown default:
-                purchaseState = .idle
+                purchaseState = .unknownState
             }
         } catch {
             purchaseState = .failed(error.localizedDescription)

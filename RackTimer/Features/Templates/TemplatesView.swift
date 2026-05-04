@@ -47,6 +47,7 @@ struct TemplatesView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("Add template")
                 }
             }
             .sheet(item: $editing) { t in

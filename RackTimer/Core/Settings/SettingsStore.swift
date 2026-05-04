@@ -13,6 +13,7 @@ final class SettingsStore: ObservableObject {
         static let haptics = "settings.haptics"
         static let sound = "settings.sound"
         static let autoRestart = "settings.autoRestart"
+        static let backgroundAlerts = "settings.backgroundAlerts"
         static let customPlatesLb = "settings.customPlatesLb"
         static let customPlatesKg = "settings.customPlatesKg"
     }
@@ -35,6 +36,12 @@ final class SettingsStore: ObservableObject {
     @Published var autoRestart: Bool {
         didSet { defaults.set(autoRestart, forKey: Keys.autoRestart) }
     }
+    /// When true, schedule a local notification so the user gets a haptic /
+    /// sound the moment the rest timer ends — even with the phone face-down
+    /// and the app backgrounded (the dominant usage pattern). Default ON.
+    @Published var backgroundAlertsEnabled: Bool {
+        didSet { defaults.set(backgroundAlertsEnabled, forKey: Keys.backgroundAlerts) }
+    }
     /// Custom plate inventory (premium-only UI). Falls back to defaults when empty.
     @Published var customPlatesLb: [Double] {
         didSet { defaults.set(customPlatesLb, forKey: Keys.customPlatesLb) }
@@ -56,6 +63,7 @@ final class SettingsStore: ObservableObject {
         self.hapticsEnabled = defaults.object(forKey: Keys.haptics) as? Bool ?? true
         self.soundEnabled = defaults.object(forKey: Keys.sound) as? Bool ?? true
         self.autoRestart = defaults.bool(forKey: Keys.autoRestart)
+        self.backgroundAlertsEnabled = defaults.object(forKey: Keys.backgroundAlerts) as? Bool ?? true
         self.customPlatesLb = (defaults.object(forKey: Keys.customPlatesLb) as? [Double]) ?? []
         self.customPlatesKg = (defaults.object(forKey: Keys.customPlatesKg) as? [Double]) ?? []
     }
