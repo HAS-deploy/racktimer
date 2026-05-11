@@ -79,7 +79,7 @@ struct PlateCalculatorView: View {
         guard let target = Double(targetText.replacingOccurrences(of: ",", with: ".")),
               target > 0 else { return nil }
         let bar = Double(barText.replacingOccurrences(of: ",", with: ".")) ?? settings.defaultBar
-        let plates = settings.activePlates(premium: purchases.isPremium)
+        let plates = settings.activePlates(premium: purchases.isEntitled)
         return PlateCalculator.calculate(target: target, bar: bar, plates: plates)
     }
 

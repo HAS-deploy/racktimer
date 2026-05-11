@@ -27,12 +27,14 @@
 		BB81B30FAD7EDADE2ED955DF /* RestTimerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB522EA2587C672BA50A38AE /* RestTimerEngineTests.swift */; };
 		C55C4FE1254B75A0DEB3D199 /* PlateCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF243AD7FB51F5E552CA1673 /* PlateCalculator.swift */; };
 		C8DAD133F44848888661D919 /* PlateCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B9AD0E15B95606389F1AB3 /* PlateCalculatorView.swift */; };
+		CA807205D0E5030B7D6A1E87 /* InstallTrialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B548ACFED43482CCFEB05C /* InstallTrialTests.swift */; };
 		D516BF53F7119C9703B744FC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FAE32C213C643C42827BDE /* SettingsView.swift */; };
 		DD5F0EBD7523A7A01EBC0676 /* LiftTimerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F8EAE85D99B02010A87CE3A /* LiftTimerApp.swift */; };
 		E0F1AD87C823EFEFBECBCC36 /* PortfolioAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBD983C5105C11D95480731 /* PortfolioAnalytics.swift */; };
 		EF1F3A30BCB6218CE62D53ED /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE52A31BA7CC89B3FB9D12DD /* TemplateStore.swift */; };
 		F7494095A04716FCBA6CE31B /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2C4A3E35ACE87767333099 /* TemplatesView.swift */; };
 		F9B323AD98FD5B86C9D547F2 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D0352F97E2C3A6076BD8AC /* TimerView.swift */; };
+		FC8A1EEC80A0C0E6CC569887 /* ProductIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D22C27B250FB20E2834E49 /* ProductIDs.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,11 +53,13 @@
 		377B0453C03A9D697FD73BA7 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
 		3DBD983C5105C11D95480731 /* PortfolioAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioAnalytics.swift; sourceTree = "<group>"; };
 		41C31F1D4C606B57984A2D77 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		52D22C27B250FB20E2834E49 /* ProductIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductIDs.swift; sourceTree = "<group>"; };
 		63DBBEDE6414077741388A3D /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		669532C5A62E5D256B31EB50 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		66C99E2820C4026B6B07A182 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		6C79ACFD783FD50D54061C9F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6D979F07E536684B749DC8EA /* PlateCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlateCalculatorTests.swift; sourceTree = "<group>"; };
+		77B548ACFED43482CCFEB05C /* InstallTrialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallTrialTests.swift; sourceTree = "<group>"; };
 		85B9AD0E15B95606389F1AB3 /* PlateCalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlateCalculatorView.swift; sourceTree = "<group>"; };
 		8F8EAE85D99B02010A87CE3A /* LiftTimerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftTimerApp.swift; sourceTree = "<group>"; };
 		99A7DCC25C221935AD7FE61D /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
@@ -92,6 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				2C1170BF2C57AB376ABC6E3D /* BackgroundTimerNotifierTests.swift */,
+				77B548ACFED43482CCFEB05C /* InstallTrialTests.swift */,
 				6D979F07E536684B749DC8EA /* PlateCalculatorTests.swift */,
 				AB522EA2587C672BA50A38AE /* RestTimerEngineTests.swift */,
 			);
@@ -209,6 +214,7 @@
 			isa = PBXGroup;
 			children = (
 				D99C8E11A34B55C023F86882 /* PricingConfig.swift */,
+				52D22C27B250FB20E2834E49 /* ProductIDs.swift */,
 			);
 			path = Pricing;
 			sourceTree = "<group>";
@@ -394,6 +400,7 @@
 				C8DAD133F44848888661D919 /* PlateCalculatorView.swift in Sources */,
 				E0F1AD87C823EFEFBECBCC36 /* PortfolioAnalytics.swift in Sources */,
 				B7C41A2449A68C5906AE55A2 /* PricingConfig.swift in Sources */,
+				FC8A1EEC80A0C0E6CC569887 /* ProductIDs.swift in Sources */,
 				669FF5A398CE724BDD34CAE4 /* PurchaseManager.swift in Sources */,
 				0A240E00A1C5DCA957C3A98D /* RestTimerEngine.swift in Sources */,
 				3451172D6CCABEEF76E6DD39 /* RootTabView.swift in Sources */,
@@ -410,6 +417,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23A56B20EE0E1ACFDDDC9045 /* BackgroundTimerNotifierTests.swift in Sources */,
+				CA807205D0E5030B7D6A1E87 /* InstallTrialTests.swift in Sources */,
 				B72005910F8F50DA18E6ABF7 /* PlateCalculatorTests.swift in Sources */,
 				BB81B30FAD7EDADE2ED955DF /* RestTimerEngineTests.swift in Sources */,
 			);
@@ -515,7 +523,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 11;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = RackTimer/Resources/Info.plist;
@@ -524,7 +532,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.racktimer.app;
 				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;
@@ -616,7 +624,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 11;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = RackTimer/Resources/Info.plist;
@@ -625,7 +633,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.racktimer.app;
 				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;

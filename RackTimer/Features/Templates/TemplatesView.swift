@@ -27,7 +27,7 @@ struct TemplatesView: View {
                         idx.map { templates.templates[$0].id }.forEach(templates.delete)
                     }
                 } footer: {
-                    if !purchases.isPremium {
+                    if !purchases.isEntitled {
                         Text("Free: up to \(PricingConfig.freeTemplateSlots) templates. Premium unlocks unlimited.")
                             .font(.caption)
                     }
@@ -37,7 +37,7 @@ struct TemplatesView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        let atLimit = !purchases.isPremium && templates.templates.count >= PricingConfig.freeTemplateSlots
+                        let atLimit = !purchases.isEntitled && templates.templates.count >= PricingConfig.freeTemplateSlots
                         if atLimit {
                             analytics.track(.paywallViewed, properties: ["from": "templates_limit"])
                             showPaywall = true

@@ -35,7 +35,7 @@ struct LogView: View {
                             if !last.note.isEmpty {
                                 Text(last.note).font(.caption2).foregroundStyle(.secondary).italic()
                             }
-                            if !purchases.isPremium {
+                            if !purchases.isEntitled {
                                 Text("Free tier shows the most recent \(PricingConfig.freeHistoryWindowDays) days.")
                                     .font(.caption2).foregroundStyle(.secondary)
                             }
@@ -85,7 +85,7 @@ struct LogView: View {
 
     private var recall: LoggedSet? {
         guard !exercise.isEmpty else { return nil }
-        let max = purchases.isPremium ? nil : PricingConfig.freeHistoryWindowDays
+        let max = purchases.isEntitled ? nil : PricingConfig.freeHistoryWindowDays
         let scope = history.visibleSets(maxDays: max)
         return scope.first { $0.exercise.lowercased() == exercise.lowercased() }
     }

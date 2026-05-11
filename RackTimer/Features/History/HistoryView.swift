@@ -43,7 +43,7 @@ struct HistoryView: View {
                         .onDelete { idx in
                             idx.map { visible[$0].id }.forEach(history.delete)
                         }
-                        if !purchases.isPremium {
+                        if !purchases.isEntitled {
                             Section {
                                 Button {
                                     showPaywall = true
@@ -67,7 +67,7 @@ struct HistoryView: View {
     }
 
     private var visible: [LoggedSet] {
-        let days = purchases.isPremium ? nil : PricingConfig.freeHistoryWindowDays
+        let days = purchases.isEntitled ? nil : PricingConfig.freeHistoryWindowDays
         return history.visibleSets(maxDays: days)
     }
 

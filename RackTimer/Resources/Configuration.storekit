@@ -45,6 +45,32 @@
           "referenceName" : "RackTimer Premium Monthly",
           "subscriptionGroupID" : "racktimer_premium",
           "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "19.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "com.racktimer.app.yearly",
+          "introductoryOffer" : {
+            "internalID" : "com.racktimer.app.yearly.trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W",
+            "numberOfPeriods" : 1
+          },
+          "localizations" : [
+            {
+              "description" : "Auto-renewing yearly with 14-day trial.",
+              "displayName" : "RackTimer Premium (Yearly)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.racktimer.app.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "RackTimer Premium Yearly",
+          "subscriptionGroupID" : "racktimer_premium",
+          "type" : "RecurringSubscription"
         }
       ]
     }

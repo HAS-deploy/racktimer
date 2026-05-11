@@ -86,7 +86,7 @@ struct TimerView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(isAdvancedPreset(secs) ? .orange : .accentColor)
             }
-            if !purchases.isPremium {
+            if !purchases.isEntitled {
                 Button {
                     analytics.track(.paywallViewed, properties: ["from": "timer_preset_plus"])
                     showPaywall = true

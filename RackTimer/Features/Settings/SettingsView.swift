@@ -15,6 +15,23 @@ struct SettingsView: View {
                     if purchases.isPremium {
                         Label("Premium unlocked", systemImage: "checkmark.seal.fill")
                             .foregroundStyle(Color.accentColor)
+                    } else if purchases.installTrialActive {
+                        Label("Free trial active", systemImage: "sparkles")
+                            .foregroundStyle(Color.accentColor)
+                        Button {
+                            analytics.track(.paywallViewed, properties: ["from": "settings"])
+                            showPaywall = true
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("Keep Premium after trial").font(.headline)
+                                    Text("One-time \(purchases.lifetimeDisplayPrice). No subscription.")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right").foregroundStyle(.secondary)
+                            }
+                        }
                     } else {
                         Button {
                             analytics.track(.paywallViewed, properties: ["from": "settings"])
