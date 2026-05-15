@@ -34,10 +34,16 @@ enum BackgroundTimerNotifierIDs {
 final class SystemBackgroundTimerNotifier: BackgroundTimerNotifier {
 
     private let center: UNUserNotificationCenter
+    /// Closure read at schedule time so the user's "Notification sound"
+    /// toggle in Settings can mute the rest-complete alert without
+    /// restructuring the notifier (P1 — was a dead preference pre-fix).
+    private let soundEnabled: @MainActor () -> Bool
     private var didRequestAuthorization = false
 
-    init(center: UNUserNotificationCenter = .current()) {
+    init(center: UNUserNotificationCenter = .current(),
+         soundEnabled: @escaping @MainActor () -> Bool = { true }) {
         self.center = center
+        self.soundEnabled = soundEnabled
     }
 
     func scheduleRestComplete(at fireAt: Date, duration: TimeInterval) {
@@ -51,7 +57,7 @@ final class SystemBackgroundTimerNotifier: BackgroundTimerNotifier {
         let content = UNMutableNotificationContent()
         content.title = "Rest complete"
         content.body = "\(Int(duration.rounded()))s rest is up — back to the bar."
-        content.sound = .default
+        content.sound = soundEnabled() ? .default : nil
         content.interruptionLevel = .timeSensitive
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)

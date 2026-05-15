@@ -11,6 +11,16 @@ struct PaywallView: View {
 
     @State private var purchaseAttempted = false
 
+    /// Drop the "lifetime" clause from the canned subtitle when StoreKit
+    /// didn't return the lifetime product (H1 — IAP not yet provisioned in
+    /// ASC). Keeps in-app copy consistent with the buttons actually shown.
+    private var paywallSubtitle: String {
+        if purchases.lifetimeProduct == nil {
+            return "Pick yearly with a 14-day free trial or monthly."
+        }
+        return PricingConfig.paywallSubtitle
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 18) {
@@ -21,10 +31,33 @@ struct PaywallView: View {
                 Text(PricingConfig.paywallTitle)
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
-                Text(PricingConfig.paywallSubtitle)
+                Text(paywallSubtitle)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
+
+                // H2 — disclose the 14-day install-time trial inside the
+                // paywall so a user reading "Free" in the App Store and
+                // landing on the paywall mid-trial sees the same wording.
+                // The App Store description still needs an ASC-side edit
+                // (see SHIP_NOTES.md) but this closes the in-app gap.
+                if purchases.installTrialActive {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "gift.fill")
+                            .foregroundStyle(Color.accentColor)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Your install-time free trial is active")
+                                .font(.subheadline.weight(.semibold))
+                            Text("Premium unlocked for the first \(PricingConfig.annualTrialDays) days, no card required.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(12)
+                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
+                }
 
                 VStack(alignment: .leading, spacing: 10) {
                     ForEach(PricingConfig.paywallBenefits, id: \.self) { b in
@@ -40,7 +73,15 @@ struct PaywallView: View {
                 VStack(spacing: 12) {
                     yearlyCard
                     monthlyButton
-                    lifetimeButton
+                    // Lifetime button only renders when StoreKit actually
+                    // returned the product. Pre-fix it always rendered with
+                    // the fallback "$14.99" displayPrice and tapping flipped
+                    // purchaseState=.failed("Product not available"). The
+                    // lifetime IAP is not yet provisioned in ASC (see
+                    // SHIP_NOTES.md — H1).
+                    if purchases.lifetimeProduct != nil {
+                        lifetimeButton
+                    }
                     Button("Restore purchases") {
                         analytics.track(.restorePurchasesTapped)
                         PortfolioAnalytics.shared.track(PortfolioEvent.paywallRestoreClick)
@@ -105,20 +146,9 @@ struct PaywallView: View {
                         }
                         dismiss()
                     } else {
-                        let reason: String
-                        switch purchases.purchaseState {
-                        case .cancelled:    reason = "user_cancelled"
-                        case .pending:      reason = "pending_approval"
-                        case .unknownState: reason = "storekit_unknown_case"
-                        case .failed(let m):reason = m
-                        default:            reason = "unknown"
-                        }
-                        PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
-                            "is_sub": true,
-                            "source": source,
-                            "product_id": PricingConfig.annualProductID,
-                            "reason": reason,
-                        ])
+                        emitPaywallFailure(productId: PricingConfig.annualProductID,
+                                           state: purchases.purchaseState,
+                                           isSub: true)
                     }
                 }
             } label: {
@@ -192,20 +222,9 @@ struct PaywallView: View {
                     }
                     dismiss()
                 } else {
-                    let reason: String
-                    switch purchases.purchaseState {
-                    case .cancelled:    reason = "user_cancelled"
-                    case .pending:      reason = "pending_approval"
-                    case .unknownState: reason = "storekit_unknown_case"
-                    case .failed(let m):reason = m
-                    default:            reason = "unknown"
-                    }
-                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
-                        "is_sub": true,
-                        "source": source,
-                        "product_id": PricingConfig.monthlyProductID,
-                        "reason": reason,
-                    ])
+                    emitPaywallFailure(productId: PricingConfig.monthlyProductID,
+                                       state: purchases.purchaseState,
+                                       isSub: true)
                 }
             }
         } label: {
@@ -260,20 +279,9 @@ struct PaywallView: View {
                     }
                     dismiss()
                 } else {
-                    let reason: String
-                    switch purchases.purchaseState {
-                    case .cancelled:    reason = "user_cancelled"
-                    case .pending:      reason = "pending_approval"
-                    case .unknownState: reason = "storekit_unknown_case"
-                    case .failed(let m):reason = m
-                    default:            reason = "unknown"
-                    }
-                    PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
-                        "is_sub": false,
-                        "source": source,
-                        "product_id": PricingConfig.lifetimeProductID,
-                        "reason": reason,
-                    ])
+                    emitPaywallFailure(productId: PricingConfig.lifetimeProductID,
+                                       state: purchases.purchaseState,
+                                       isSub: false)
                 }
             }
         } label: {
@@ -297,6 +305,36 @@ struct PaywallView: View {
         .disabled(purchases.purchaseState == .purchasing)
     }
 
+    // MARK: - Failure emission helper
+    //
+    // Maps `PurchaseManager.PurchaseState` → canonical `PurchaseFailureReason`
+    // and emits a single `paywall.purchase_failed` carrying the spec-correct
+    // `reason` (single-l `user_canceled`, not the double-l Apple variant)
+    // plus the existing `is_sub` / `source` props the dashboards filter on.
+    // Pre-fix this path hard-coded `"user_cancelled"` (wrong spelling) and
+    // bypassed the canonical enum entirely.
+    private func emitPaywallFailure(productId: String,
+                                    state: PurchaseManager.PurchaseState,
+                                    isSub: Bool) {
+        let reason: PurchaseFailureReason
+        var errorCode: String? = nil
+        switch state {
+        case .cancelled:    reason = .userCanceled
+        case .pending:      reason = .pending
+        case .unknownState: reason = .unknown;  errorCode = "storekit_unknown_case"
+        case .failed(let m):reason = .unknown;  errorCode = String(m.prefix(200))
+        default:            reason = .unknown;  errorCode = "no_state"
+        }
+        var props: [String: Any] = [
+            "is_sub": isSub,
+            "source": source,
+            "product_id": productId,
+            "reason": reason.rawValue,
+        ]
+        if let c = errorCode { props["error_code"] = c }
+        PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, props)
+    }
+
     // MARK: - Legal footer (3.1.2(a) disclosure block, verbatim from PricingConfig)
 
     private var legalFooter: some View {
@@ -313,7 +351,9 @@ struct PaywallView: View {
                 Text("• " + PricingConfig.disclosureRenewalCharge)
                 Text("• " + PricingConfig.disclosureManage)
                 Text("• " + PricingConfig.disclosureFreeTrial)
-                Text("• RackTimer Lifetime is a one-time non-consumable purchase with no recurring charges.")
+                if purchases.lifetimeProduct != nil {
+                    Text("• RackTimer Lifetime is a one-time non-consumable purchase with no recurring charges.")
+                }
             }
             .font(.caption2).foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)

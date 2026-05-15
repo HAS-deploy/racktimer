@@ -18,7 +18,8 @@ struct RackTimerApp: App {
         let store = SettingsStore()
         _settings = StateObject(wrappedValue: store)
         _timer = StateObject(wrappedValue: RestTimerEngine(
-            backgroundAlertsEnabled: { [weak store] in store?.backgroundAlertsEnabled ?? true }
+            backgroundAlertsEnabled: { [weak store] in store?.backgroundAlertsEnabled ?? true },
+            soundEnabled: { [weak store] in store?.soundEnabled ?? true }
         ))
     }
 

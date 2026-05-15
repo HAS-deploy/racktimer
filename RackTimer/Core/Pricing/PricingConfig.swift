@@ -61,8 +61,11 @@ enum PricingConfig {
     static let disclosureFreeTrial =
         "If you start a free trial, any unused portion is forfeited if you purchase a subscription before the trial ends."
 
-    /// URLs rendered as tappable links in the paywall and ASC metadata.
+    /// URLs rendered as tappable links in the paywall, Settings, and ASC
+    /// metadata. Single source of truth so Settings ↔ paywall ↔ App Privacy
+    /// reviewer never see drift between two parallel-maintained policies.
     static let privacyPolicyURL = "https://has-deploy.github.io/racktimer/privacy-policy.html"
+    static let supportURL       = "https://has-deploy.github.io/racktimer/support.html"
     static let appleStdEULAURL  = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
 
     // Free-tier caps

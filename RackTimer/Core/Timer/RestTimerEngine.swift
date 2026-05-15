@@ -20,6 +20,11 @@ final class RestTimerEngine: ObservableObject {
     @Published private(set) var lastDuration: TimeInterval = 90
 
     private var ticker: Timer?
+    /// Last whole-second remaining value we sent to SwiftUI. The ticker fires
+    /// at 10 Hz so the engine can promptly detect expiry, but the M:SS label
+    /// only changes once a second — only emit `objectWillChange` when the
+    /// displayed integer flips (P4 — was wasting ~9 invalidations/sec).
+    private var lastEmittedSecond: Int = -1
 
     /// Background notifier used so the user gets a haptic / sound when the
     /// rest period completes while the app is backgrounded (the dominant
@@ -30,11 +35,12 @@ final class RestTimerEngine: ObservableObject {
     private let backgroundAlertsEnabled: @MainActor () -> Bool
 
     init(notifier: BackgroundTimerNotifier? = nil,
-         backgroundAlertsEnabled: @escaping @MainActor () -> Bool = { true }) {
+         backgroundAlertsEnabled: @escaping @MainActor () -> Bool = { true },
+         soundEnabled: @escaping @MainActor () -> Bool = { true }) {
         // Default expressions are evaluated in the caller's isolation context,
         // so we resolve the production notifier inside the @MainActor-isolated
         // init body instead of in the default-argument list.
-        self.notifier = notifier ?? SystemBackgroundTimerNotifier()
+        self.notifier = notifier ?? SystemBackgroundTimerNotifier(soundEnabled: soundEnabled)
         self.backgroundAlertsEnabled = backgroundAlertsEnabled
     }
 
@@ -45,6 +51,7 @@ final class RestTimerEngine: ObservableObject {
         let safe = max(1, seconds)
         let now = Date()
         state = .running(startedAt: now, duration: safe)
+        lastEmittedSecond = -1
         scheduleTicker()
         scheduleBackgroundAlert(fireAt: now.addingTimeInterval(safe), duration: safe)
     }
@@ -62,6 +69,7 @@ final class RestTimerEngine: ObservableObject {
         guard case .paused(let remaining) = state else { return }
         let now = Date()
         state = .running(startedAt: now, duration: remaining)
+        lastEmittedSecond = -1
         scheduleTicker()
         scheduleBackgroundAlert(fireAt: now.addingTimeInterval(remaining), duration: remaining)
     }
@@ -123,8 +131,13 @@ final class RestTimerEngine: ObservableObject {
             // both an in-app haptic AND a banner a tick later.
             notifier.cancelRestComplete()
         } else {
-            // Publishing the same state triggers SwiftUI recomputation via @Published.
-            objectWillChange.send()
+            // Only notify SwiftUI when the displayed integer-second flips —
+            // skips 9 of every 10 ticker callbacks (P4).
+            let currentSecond = Int(remaining.rounded(.down))
+            if currentSecond != lastEmittedSecond {
+                lastEmittedSecond = currentSecond
+                objectWillChange.send()
+            }
         }
     }
 
