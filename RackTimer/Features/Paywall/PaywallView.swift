@@ -16,7 +16,7 @@ struct PaywallView: View {
     /// ASC). Keeps in-app copy consistent with the buttons actually shown.
     private var paywallSubtitle: String {
         if purchases.lifetimeProduct == nil {
-            return "Pick yearly with a 14-day free trial or monthly."
+            return "Pick yearly or monthly."
         }
         return PricingConfig.paywallSubtitle
     }
@@ -36,19 +36,20 @@ struct PaywallView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
 
-                // H2 — disclose the 14-day install-time trial inside the
-                // paywall so a user reading "Free" in the App Store and
-                // landing on the paywall mid-trial sees the same wording.
-                // The App Store description still needs an ASC-side edit
-                // (see SHIP_NOTES.md) but this closes the in-app gap.
+                // Install-trial banner — portfolio policy 2026-05-18.
+                // Renders only while the 7-day install window is open and
+                // the trial has not been consumed by a paid purchase. The
+                // ASC-side subscription intro offer has been stripped, so
+                // this banner is now the canonical "free trial" surface.
                 if purchases.installTrialActive {
+                    let remaining = purchases.installTrialDaysRemaining()
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: "gift.fill")
                             .foregroundStyle(Color.accentColor)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Your install-time free trial is active")
+                            Text("Your 7-day free Premium trial is active")
                                 .font(.subheadline.weight(.semibold))
-                            Text("Premium unlocked for the first \(PricingConfig.annualTrialDays) days, no card required.")
+                            Text("\(remaining) day\(remaining == 1 ? "" : "s") left. Subscribe any time to keep Premium.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -114,7 +115,7 @@ struct PaywallView: View {
         .trackScreen("paywall")
     }
 
-    // MARK: - Yearly (with 14-day trial)
+    // MARK: - Yearly
 
     private var yearlyCard: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -179,15 +180,6 @@ struct PaywallView: View {
             }
             .buttonStyle(.plain)
             .disabled(purchases.purchaseState == .purchasing)
-
-            // 3.1.2(a) forfeiture sentence — rendered inline under the
-            // trial offer so the reviewer sees it next to the buy button.
-            // Paired with the same line in the bottom disclosure block.
-            Text(PricingConfig.disclosureFreeTrial)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 4)
         }
     }
 
@@ -343,14 +335,14 @@ struct PaywallView: View {
                 .font(.footnote).fontWeight(.semibold)
             // 3.1.2(a) disclosure block — rendered VERBATIM from
             // PricingConfig so paywall copy + ASC metadata stay in lockstep.
-            // The free-trial forfeiture sentence appears here AND inline
-            // under the yearly card per the canonical pattern.
+            // Free-trial forfeiture line dropped 2026-05-18: ASC-side intro
+            // offer was stripped portfolio-wide in favor of the install-time
+            // trial, which is not a "free trial" in the StoreKit 3.1.2 sense.
             VStack(alignment: .leading, spacing: 4) {
                 Text("• " + PricingConfig.disclosurePaymentCharged)
                 Text("• " + PricingConfig.disclosureAutoRenew)
                 Text("• " + PricingConfig.disclosureRenewalCharge)
                 Text("• " + PricingConfig.disclosureManage)
-                Text("• " + PricingConfig.disclosureFreeTrial)
                 if purchases.lifetimeProduct != nil {
                     Text("• RackTimer Lifetime is a one-time non-consumable purchase with no recurring charges.")
                 }

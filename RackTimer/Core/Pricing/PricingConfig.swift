@@ -4,13 +4,16 @@ import Foundation
 /// 3.1.2(a) disclosure block. The paywall, `Configuration.storekit`, and
 /// the ASC-side products must all agree with these constants.
 ///
-/// Trial-determination model (portfolio-wide pattern):
-///   - Annual product carries a StoreKit `introductoryOffer` of paymentMode
-///     `free` for `P2W` (14 days). RackTimer uses 2 weeks because workouts
-///     run ~3x/week — 14 days = ~6 sessions = real habit formation.
-///   - Monthly product carries NO intro offer.
-///   - Forfeiture sentence is rendered inline next to the trial AND in the
-///     disclosure block per the canonical 3.1.2 pattern.
+/// Trial-determination model (portfolio-wide pattern, 2026-05-18):
+///   - Every fresh install gets the highest Premium tier free for 7 days
+///     via the install-time trial in `PurchaseManager` — no card, no
+///     paywall, no subscription tap required.
+///   - On the 8th day the user drops back to the free tier and the paywall
+///     starts gating Premium-only surfaces normally.
+///   - Purchasing any sub/IAP consumes the install-trial immediately
+///     (`installTrialConsumedKey` → true) so paid users never get a
+///     double-trial. The ASC-side subscription intro offer has been
+///     stripped portfolio-wide; install-time is the canonical pattern.
 enum PricingConfig {
     // Product IDs (legacy names kept for source-compat with existing call
     // sites; mirror `ProductIDs` enum for the canonical lookup).
@@ -32,7 +35,7 @@ enum PricingConfig {
     static let allProductIDs: [String] = ProductIDs.all
 
     static let paywallTitle = "Unlock RackTimer"
-    static let paywallSubtitle = "Pick yearly with a 14-day free trial, monthly, or one-time lifetime unlock."
+    static let paywallSubtitle = "Pick yearly, monthly, or one-time lifetime unlock."
 
     static let paywallBenefits: [String] = [
         "Unlimited workout templates",
@@ -42,12 +45,12 @@ enum PricingConfig {
         "Custom plate inventory",
     ]
 
-    /// Trial-determination: 14-day free trial introductory offer on annual.
-    /// Mirrors `Configuration.storekit` and the ASC-side
-    /// `subscriptionIntroductoryOffers` records — the constant + the
-    /// StoreKit file + the paywall copy + the ASC product must agree exactly.
-    static let annualTrialDays: Int = 14
-    static let annualTrialDescription: String = "14-day free trial, then $19.99/year"
+    /// Install-time trial length (portfolio policy 2026-05-18).
+    /// Read by `PurchaseManager.recomputeInstallTrial()` and rendered by the
+    /// paywall banner. Name kept for source-compat with prior call sites —
+    /// "annual" no longer implies an ASC-side introductory offer.
+    static let annualTrialDays: Int = 7
+    static let annualTrialDescription: String = "Auto-renews yearly · cancel anytime"
 
     /// 3.1.2(a) disclosures rendered verbatim by the paywall.
     static let disclosurePaymentCharged =

@@ -59,7 +59,9 @@ struct SettingsView: View {
                             }
                         }
                     } else if purchases.installTrialActive {
-                        Label("Free trial active", systemImage: "sparkles")
+                        let remaining = purchases.installTrialDaysRemaining()
+                        Label("Free trial active — \(remaining) day\(remaining == 1 ? "" : "s") left",
+                              systemImage: "sparkles")
                             .foregroundStyle(Color.accentColor)
                         Button {
                             analytics.track(.paywallViewed, properties: ["from": "settings"])

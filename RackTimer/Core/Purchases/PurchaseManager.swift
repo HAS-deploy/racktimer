@@ -4,11 +4,14 @@ import StoreKit
 /// StoreKit 2 wrapper. Multi-product: monthly auto-renewable subscription +
 /// lifetime non-consumable. Either one grants `isPremium = true`.
 ///
-/// Install-time trial: fresh installs get full Premium for
-/// `PricingConfig.annualTrialDays` (14 days) before any free-tier caps kick
-/// in. State lives in UserDefaults under `firstLaunchAtKey` so it survives
-/// app launches but resets on uninstall — matching the StoreKit-side
-/// intro-offer eligibility model and the canonical RoadBinder pattern.
+/// Install-time trial (portfolio policy 2026-05-18): fresh installs get the
+/// highest Premium tier free for `PricingConfig.annualTrialDays` (7 days).
+/// State lives in UserDefaults under `firstLaunchAtKey` so it survives app
+/// launches but resets on uninstall — install-scoped, not Apple-ID scoped.
+/// When the user purchases any sub/IAP we set `installTrialConsumedKey` so
+/// `installTrialActive` flips false immediately — no double-trial, paid
+/// users go straight to paid Premium. Matches the canonical
+/// `IntroTrialClock` pattern used across the portfolio.
 @MainActor
 final class PurchaseManager: ObservableObject {
 
@@ -34,6 +37,11 @@ final class PurchaseManager: ObservableObject {
     /// UserDefaults key for the first-launch timestamp. Set exactly once,
     /// the first time `PurchaseManager` initializes after a fresh install.
     static let firstLaunchAtKey = "racktimer.firstLaunchAt"
+
+    /// UserDefaults key for the install-trial consumed flag. Flipped true
+    /// when a paid sub/IAP purchase lands so the install-trial window stops
+    /// granting entitlement (no double-trial). Cleared by debug reset only.
+    static let installTrialConsumedKey = "racktimer.installTrial.consumed"
 
     /// Single entitlement source of truth — `true` if the user is paid or
     /// still inside the install-time trial. Views should consult this for
@@ -119,6 +127,7 @@ final class PurchaseManager: ObservableObject {
                 case .verified(let tx):
                     await tx.finish()
                     isPremium = true
+                    consumeInstallTrial()
                     recomputeInstallTrial()
                     purchaseState = .idle
                 case .unverified(let tx, let err):
@@ -158,6 +167,10 @@ final class PurchaseManager: ObservableObject {
                PricingConfig.allProductIDs.contains(tx.productID),
                tx.revocationDate == nil {
                 isPremium = true
+                // Paid entitlement found — consume the install-trial so we
+                // never grant a second trial after a refund + re-purchase
+                // cycle, and so analytics never double-counts the window.
+                consumeInstallTrial()
                 recomputeInstallTrial()
                 return
             }
@@ -178,16 +191,38 @@ final class PurchaseManager: ObservableObject {
 
     /// Days elapsed since first launch on this install. Floor-rounded to
     /// whole days so a fresh install reports 0 and the trial flips off
-    /// strictly after 14 full days have passed.
+    /// strictly after `annualTrialDays` full days have passed.
     private func daysSinceFirstLaunch() -> Int {
         guard let start = defaults.object(forKey: Self.firstLaunchAtKey) as? Date else { return 0 }
         return Calendar.current.dateComponents([.day], from: start, to: now()).day ?? 0
     }
 
-    /// True iff the install-time trial window is still open AND no paid
-    /// entitlement is active. Paying users don't need the trial flag.
+    /// Rounded-up days remaining in the install-trial window. Used by the
+    /// paywall and Settings banners. Zero once the trial has expired or
+    /// been consumed by a paid purchase.
+    func installTrialDaysRemaining() -> Int {
+        guard installTrialActive,
+              let start = defaults.object(forKey: Self.firstLaunchAtKey) as? Date else { return 0 }
+        let elapsed = now().timeIntervalSince(start)
+        let length = Double(PricingConfig.annualTrialDays) * 86_400
+        return max(0, Int(ceil((length - elapsed) / 86_400)))
+    }
+
+    /// True iff the install-time trial window is still open, the trial has
+    /// not been consumed by a paid purchase, AND no paid entitlement is
+    /// active. Paying users don't need the trial flag.
     private func recomputeInstallTrial() {
-        installTrialActive = !isPremium && daysSinceFirstLaunch() < PricingConfig.annualTrialDays
+        let consumed = defaults.bool(forKey: Self.installTrialConsumedKey)
+        installTrialActive = !isPremium
+            && !consumed
+            && daysSinceFirstLaunch() < PricingConfig.annualTrialDays
+    }
+
+    /// Mark the install-trial as consumed. Called whenever a paid
+    /// transaction (sub or lifetime IAP) lands so the next read of
+    /// `installTrialActive` returns false — no double-trial.
+    private func consumeInstallTrial() {
+        defaults.set(true, forKey: Self.installTrialConsumedKey)
     }
 
     /// Test/debug hook — call after mutating UserDefaults or the clock in a
@@ -213,6 +248,15 @@ final class PurchaseManager: ObservableObject {
     /// Debug-only override — never shipped in Release.
     func debugTogglePremium() {
         isPremium.toggle()
+        if isPremium { consumeInstallTrial() }
+        recomputeInstallTrial()
+    }
+
+    /// QA helper — wipe install-trial state and re-stamp from now. Lets
+    /// dev/screenshot builds re-enter the trial window without uninstall.
+    func debugResetInstallTrial() {
+        defaults.set(false, forKey: Self.installTrialConsumedKey)
+        defaults.set(now(), forKey: Self.firstLaunchAtKey)
         recomputeInstallTrial()
     }
 #endif
