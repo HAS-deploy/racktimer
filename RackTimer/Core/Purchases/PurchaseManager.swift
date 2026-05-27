@@ -5,7 +5,7 @@ import StoreKit
 /// lifetime non-consumable. Either one grants `isPremium = true`.
 ///
 /// Install-time trial (portfolio policy 2026-05-18): fresh installs get the
-/// highest Premium tier free for `PricingConfig.annualTrialDays` (7 days).
+/// highest Premium tier free for `PricingConfig.annualTrialDays` (14 days).
 /// State lives in UserDefaults under `firstLaunchAtKey` so it survives app
 /// launches but resets on uninstall — install-scoped, not Apple-ID scoped.
 /// When the user purchases any sub/IAP we set `installTrialConsumedKey` so

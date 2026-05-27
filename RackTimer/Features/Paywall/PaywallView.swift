@@ -37,7 +37,7 @@ struct PaywallView: View {
                     .padding(.horizontal)
 
                 // Install-trial banner — portfolio policy 2026-05-18.
-                // Renders only while the 7-day install window is open and
+                // Renders only while the 14-day install window is open and
                 // the trial has not been consumed by a paid purchase. The
                 // ASC-side subscription intro offer has been stripped, so
                 // this banner is now the canonical "free trial" surface.
@@ -47,7 +47,7 @@ struct PaywallView: View {
                         Image(systemName: "gift.fill")
                             .foregroundStyle(Color.accentColor)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Your 7-day free Premium trial is active")
+                            Text("Your 14-day free Premium trial is active")
                                 .font(.subheadline.weight(.semibold))
                             Text("\(remaining) day\(remaining == 1 ? "" : "s") left. Subscribe any time to keep Premium.")
                                 .font(.caption)

@@ -5,7 +5,7 @@ import Foundation
 /// the ASC-side products must all agree with these constants.
 ///
 /// Trial-determination model (portfolio-wide pattern, 2026-05-18):
-///   - Every fresh install gets the highest Premium tier free for 7 days
+///   - Every fresh install gets the highest Premium tier free for 14 days
 ///     via the install-time trial in `PurchaseManager` — no card, no
 ///     paywall, no subscription tap required.
 ///   - On the 8th day the user drops back to the free tier and the paywall
@@ -45,11 +45,11 @@ enum PricingConfig {
         "Custom plate inventory",
     ]
 
-    /// Install-time trial length (portfolio policy 2026-05-18).
+    /// Install-time trial length (portfolio policy 2026-05-27).
     /// Read by `PurchaseManager.recomputeInstallTrial()` and rendered by the
     /// paywall banner. Name kept for source-compat with prior call sites —
     /// "annual" no longer implies an ASC-side introductory offer.
-    static let annualTrialDays: Int = 7
+    static let annualTrialDays: Int = 14
     static let annualTrialDescription: String = "Auto-renews yearly · cancel anytime"
 
     /// 3.1.2(a) disclosures rendered verbatim by the paywall.

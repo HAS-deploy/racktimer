@@ -2,7 +2,7 @@ import XCTest
 @testable import RackTimer
 
 /// Install-time trial entitlement (portfolio policy 2026-05-18): fresh
-/// installs get the highest Premium tier for 7 days. After day 7 the user
+/// installs get the highest Premium tier for 14 days. After day 14 the user
 /// drops back to the free tier, but all previously-saved data (workout
 /// templates, history, PRs) is preserved. A paid purchase consumes the
 /// trial immediately so we never double-grant.
@@ -88,11 +88,11 @@ final class InstallTrialTests: XCTestCase {
         XCTAssertFalse(end.installTrialActive)
     }
 
-    // MARK: 3b) Trial duration is 7 days per portfolio policy 2026-05-18
+    // MARK: 3b) Trial duration is 14 days per portfolio policy 2026-05-18
 
     func test_trialDuration_is7Days() {
         XCTAssertEqual(PricingConfig.annualTrialDays, 7,
-                       "Portfolio install-trial policy: 7 days.")
+                       "Portfolio install-trial policy: 14 days.")
     }
 
     // MARK: 3c) Paid purchase consumes the install-trial (no double-trial)
