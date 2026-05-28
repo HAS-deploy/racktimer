@@ -314,7 +314,9 @@ struct PaywallView: View {
         case .cancelled:    reason = .userCanceled
         case .pending:      reason = .pending
         case .unknownState: reason = .unknown;  errorCode = "storekit_unknown_case"
-        case .failed(let m):reason = .unknown;  errorCode = String(m.prefix(200))
+        case .failed(let m):
+            reason = (m == "Product not available") ? .productUnavailable : .unknown
+            errorCode = String(m.prefix(200))
         default:            reason = .unknown;  errorCode = "no_state"
         }
         var props: [String: Any] = [
