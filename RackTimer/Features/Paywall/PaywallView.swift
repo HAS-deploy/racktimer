@@ -21,6 +21,29 @@ struct PaywallView: View {
         return PricingConfig.paywallSubtitle
     }
 
+    /// Free-trial intro offer surfaced by StoreKit on the yearly sub. When
+    /// present we swap the yearly card subtitle to advertise the trial.
+    /// StoreKit decides eligibility at purchase time.
+    private var yearlyFreeTrial: Product.SubscriptionOffer? {
+        guard let offer = purchases.yearlyProduct?.subscription?.introductoryOffer,
+              offer.paymentMode == .freeTrial else { return nil }
+        return offer
+    }
+
+    private var yearlyTrialLabel: String? {
+        guard let offer = yearlyFreeTrial else { return nil }
+        let days: Int = {
+            switch offer.period.unit {
+            case .day:   return offer.period.value
+            case .week:  return offer.period.value * 7
+            case .month: return offer.period.value * 30
+            case .year:  return offer.period.value * 365
+            @unknown default: return offer.period.value
+            }
+        }()
+        return "\(days)-day free trial, then \(purchases.yearlyDisplayPrice)/yr"
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 18) {
@@ -164,7 +187,7 @@ struct PaywallView: View {
                                 .foregroundStyle(.white)
                                 .clipShape(Capsule())
                         }
-                        Text(PricingConfig.annualTrialDescription)
+                        Text(yearlyTrialLabel ?? PricingConfig.annualTrialDescription)
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.9))
                     }
