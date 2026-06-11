@@ -32,16 +32,30 @@ struct PaywallView: View {
 
     private var yearlyTrialLabel: String? {
         guard let offer = yearlyFreeTrial else { return nil }
-        let days: Int = {
-            switch offer.period.unit {
-            case .day:   return offer.period.value
-            case .week:  return offer.period.value * 7
-            case .month: return offer.period.value * 30
-            case .year:  return offer.period.value * 365
-            @unknown default: return offer.period.value
-            }
-        }()
-        return "\(days)-day free trial, then \(purchases.yearlyDisplayPrice)/yr"
+        return "\(daysIn(offer.period))-day free trial, then \(purchases.yearlyDisplayPrice)/yr"
+    }
+
+    /// Same shape for the monthly card. ASC has a ONE_WEEK FREE_TRIAL on
+    /// the monthly sub too — surface it on the monthly card subtitle.
+    private var monthlyFreeTrial: Product.SubscriptionOffer? {
+        guard let offer = purchases.monthlyProduct?.subscription?.introductoryOffer,
+              offer.paymentMode == .freeTrial else { return nil }
+        return offer
+    }
+
+    private var monthlyTrialLabel: String? {
+        guard let offer = monthlyFreeTrial else { return nil }
+        return "\(daysIn(offer.period))-day free trial, then \(purchases.monthlyDisplayPrice)/mo"
+    }
+
+    private func daysIn(_ period: Product.SubscriptionPeriod) -> Int {
+        switch period.unit {
+        case .day:   return period.value
+        case .week:  return period.value * 7
+        case .month: return period.value * 30
+        case .year:  return period.value * 365
+        @unknown default: return period.value
+        }
     }
 
     var body: some View {
@@ -246,7 +260,7 @@ struct PaywallView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Monthly").font(.headline)
-                    Text("Flexible — cancel anytime").font(.caption).foregroundStyle(.secondary)
+                    Text(monthlyTrialLabel ?? "Flexible — cancel anytime").font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Text("\(purchases.monthlyDisplayPrice)/mo").font(.headline.monospacedDigit())
