@@ -24,6 +24,16 @@ final class InstallTrialTests: XCTestCase {
         super.tearDown()
     }
 
+    // MARK: 0) Trial duration SoT (portfolio install-trial policy)
+
+    func test_trialDuration_is14Days() {
+        XCTAssertEqual(
+            PricingConfig.annualTrialDays,
+            14,
+            "Install-trial SoT is 14 days; keep this assertion in lockstep with PricingConfig."
+        )
+    }
+
     // MARK: 1) Trial active on fresh install
 
     func test_freshInstall_grantsTrialAndEntitlement() {
