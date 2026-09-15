@@ -90,8 +90,8 @@ final class InstallTrialTests: XCTestCase {
 
     // MARK: 3b) Trial duration is 14 days per portfolio policy 2026-05-18
 
-    func test_trialDuration_is7Days() {
-        XCTAssertEqual(PricingConfig.annualTrialDays, 7,
+    func test_trialDuration_is14Days() {
+        XCTAssertEqual(PricingConfig.annualTrialDays, 14,
                        "Portfolio install-trial policy: 14 days.")
     }
 
